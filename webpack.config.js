@@ -2,9 +2,6 @@ var path              = require( 'path' );
 var webpack           = require( 'webpack' );
 var merge             = require( 'webpack-merge' );
 var HtmlWebpackPlugin = require( 'html-webpack-plugin' );
-var autoprefixer      = require( 'autoprefixer' );
-var ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
-var CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 
 console.log( 'WEBPACK GO!');
 
@@ -42,8 +39,6 @@ var commonConfig = {
     })
   ],
 
-  postcss: [ autoprefixer( { browsers: ['last 2 versions'] } ) ],
-
 }
 
 // additional webpack settings for local env (when invoked by 'npm start')
@@ -68,15 +63,6 @@ if ( TARGET_ENV === 'development' ) {
           test:    /\.elm$/,
           exclude: [/elm-stuff/, /node_modules/],
           loader:  'elm-hot!elm-webpack?verbose=true&warn=true&debug=true'
-        },
-        {
-          test: /\.(css|scss)$/,
-          loaders: [
-            'style-loader',
-            'css-loader',
-            'postcss-loader',
-            'sass-loader'
-          ]
         }
       ]
     }
@@ -98,35 +84,14 @@ if ( TARGET_ENV === 'production' ) {
           test:    /\.elm$/,
           exclude: [/elm-stuff/, /node_modules/],
           loader:  'elm-webpack'
-        },
-        {
-          test: /\.(css|scss)$/,
-          loader: ExtractTextPlugin.extract( 'style-loader', [
-            'css-loader',
-            'postcss-loader',
-            'sass-loader'
-          ])
         }
       ]
     },
 
     plugins: [
-      new CopyWebpackPlugin([
-        {
-          from: 'src/static/img/',
-          to:   'static/img/'
-        },
-        {
-          from: 'src/favicon.ico'
-        },
-      ]),
-
       new webpack.optimize.OccurenceOrderPlugin(),
 
-      // extract CSS into a separate file
-      new ExtractTextPlugin( './[hash].css', { allChunks: true } ),
-
-      // minify & mangle JS/CSS
+      // minify & mangle JS
       new webpack.optimize.UglifyJsPlugin({
           minimize:   true,
           compressor: { warnings: false }
